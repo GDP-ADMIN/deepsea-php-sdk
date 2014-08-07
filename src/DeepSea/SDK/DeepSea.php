@@ -42,16 +42,19 @@ class DeepSea {
     private $access_token_url;
     private $use_curl;
 
-    public function __construct($clientId, $clientSecret, $scope, $redirectUri) {
+    public function __construct($clientId, $clientSecret, $scope, $redirectUri, $host = null, $version = null) {
         $this->use_curl = is_callable('curl_init');
+
+        $host = ($host) ?: DSCONFIG::$API_HOST;
+        $version = ($version) ?: DSCONFIG::$VERSION;
 
         $this->API_KEY          = $clientId;
         $this->API_SECRET       = $clientSecret;
-        $this->API_HOST         = \Config::get('constants.API_URL') . \Config::get('constants.API_VERSION');
+        $this->API_HOST         = $host . $version;
         $this->SCOPE            = implode(",", $scope);
         $this->REDIRECT_URI     = $redirectUri;
-        $this->auth_url         = \Config::get('constants.API_URL') . '/oauth/authorize';
-        $this->access_token_url = \Config::get('constants.API_URL') . '/oauth/accesstoken';
+        $this->auth_url         = $host . '/oauth/authorize';
+        $this->access_token_url = $host . '/oauth/accesstoken';
 
         date_default_timezone_set("UTC");
     }
