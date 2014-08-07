@@ -1,0 +1,7 @@
+{
+  "name": "deepsea/php-sdk",
+  "description": "DeepSea SDK for PHP",
+  "psr-4": {
+    "DeepSea\\": "src/DeepSea/"
+  }
+}
