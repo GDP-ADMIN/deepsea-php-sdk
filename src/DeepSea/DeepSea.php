@@ -65,6 +65,8 @@ class DeepSea {
         $session = Session::getInstance();
         if (isset($session->{DeepSeaSession::TOKEN_STORAGE})) {
             $this->setAccessToken($session->{DeepSeaSession::TOKEN_STORAGE});
+        } else {
+            $this->session = new DeepSeaSession();
         }
         $this->httpClient = new DeepSeaRequest($this->session);
 
