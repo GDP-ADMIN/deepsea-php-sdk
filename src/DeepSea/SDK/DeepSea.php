@@ -14,7 +14,7 @@ class DSCONFIG {
     public static $CLIENT_SECRET = "001";
     public static $SCOPE         = array(SCOPE::ALL);
 
-    public static $API_HOST      = "http://api.deepsea.co.id";
+    public static $API_HOST      = "https://api.deepsea.co.id";
     public static $VERSION       = "/v2";
 
     // Optional, if not defined will use current URL without query string
@@ -45,8 +45,8 @@ class DeepSea {
     public function __construct($clientId, $clientSecret, $scope, $redirectUri, $host = null, $version = null) {
         $this->use_curl = is_callable('curl_init');
 
-        $host = ($host) ?: DSCONFIG::$API_HOST;
-        $version = ($version) ?: DSCONFIG::$VERSION;
+        $host = ($host) ? : DSCONFIG::$API_HOST;
+        $version = ($version) ? : DSCONFIG::$VERSION;
 
         $this->API_KEY          = $clientId;
         $this->API_SECRET       = $clientSecret;
