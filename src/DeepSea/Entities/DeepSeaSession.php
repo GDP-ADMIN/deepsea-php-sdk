@@ -14,7 +14,7 @@ class DeepSeaSession {
 
     const TOKEN_STORAGE = 'AccessToken';
 
-    public function setAccessToken(AccessToken $accessToken) {
+    public function setAccessToken(AccessToken $accessToken = null) {
         $state = Session::getInstance();
         $state->{DeepSeaSession::TOKEN_STORAGE} = $accessToken;
     }
