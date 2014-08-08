@@ -65,10 +65,8 @@ class DeepSea {
         $session = Session::getInstance();
         if (isset($session->{DeepSeaSession::TOKEN_STORAGE})) {
             $this->setAccessToken($session->{DeepSeaSession::TOKEN_STORAGE});
-        } else {
-            $this->session = new DeepSeaSession();
         }
-        $this->httpClient = new DeepSeaRequest($this->session);
+        $this->httpClient = new DeepSeaRequest();
 
         date_default_timezone_set("UTC");
     }
@@ -134,6 +132,12 @@ class DeepSea {
     }
 
     public function sendRequest($path, $data = array(), $method = HTTP::GET) {
+        if ($this->session->getAccessToken() === null) {
+            throw DeepSeaException::create('Access Token Is Required To Send A Request', 1007);
+        }
+        $this->httpClient->setRequestHeaders(array(
+            'Authorization' => sprintf('Bearer %s', $this->session->getAccessToken())
+        ));
         return $this->request($this->API_HOST . $path, $data, $method);
     }
 

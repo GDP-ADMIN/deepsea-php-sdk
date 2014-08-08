@@ -9,21 +9,19 @@
 
 namespace DeepSea\HttpClients;
 
-use Deepsea\Deepsea;
 use DeepSea\Entities\HTTP;
-use DeepSea\Entities\DeepSeaSession;
 
 class DeepSeaRequest {
 
     /**
      * @var DeepSeaHttpClientInterface
      */
-    private static $httpClient;
+    private static $httpClient = null;
 
     /**
-     * @var DeepSeaSession
+     * @var array
      */
-    private $session;
+    private $headers = array();
 
     /**
      * @param \DeepSea\HttpClients\DeepSeaHttpClientInterface $httpClient
@@ -36,15 +34,18 @@ class DeepSeaRequest {
      * @return \DeepSea\HttpClients\DeepSeaHttpClientInterface
      */
     public static function getHttpClient() {
-        if (static::$httpClientHandler) {
-            return static::$httpClientHandler;
+        if (static::$httpClient) {
+            return static::$httpClient;
         }
         return (function_exists('curl_init') && is_callable('curl_init')) ? new DeepSeaCurlHttpClient() : new DeepSeaCurlHttpClient();
     }
 
-    public function __construct(DeepSeaSession $session, DeepSeaHttpClientInterface $httpClient = null) {
+    public function setRequestHeaders($headers = array()) {
+        $this->headers = $headers;
+    }
+
+    public function __construct(DeepSeaHttpClientInterface $httpClient = null) {
         static::setHttpClient(($httpClient) ? : static::getHttpClient());
-        $this->session = $session;
     }
 
     public function send($url, $params = array(), $method = HTTP::GET) {
@@ -54,12 +55,9 @@ class DeepSeaRequest {
             $url = $this->buildQueryString($url, $params);
             $params = array();
         }
-        $httpClient->addRequestHeader('Authorization', sprintf('Bearer %s', $this->session->getAccessToken()));
-        $httpClient->addRequestHeader('User-Agent', sprintf("DeepSea/%s (%s; %s; %s) PHP/%s",
-                DeepSea::SDK_VERSION,
-                php_uname('s'), php_uname('r'), php_uname('m'),
-                phpversion())
-        );
+        foreach ($this->headers as $key => $value) {
+            $httpClient->addRequestHeader($key, $value);
+        }
 
         return $httpClient->send($url, $params, $method);
     }
