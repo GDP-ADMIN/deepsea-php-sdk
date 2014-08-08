@@ -9,7 +9,7 @@
 
 namespace DeepSea\HttpClients;
 
-
+use DeepSea\DeepSea;
 use DeepSea\Entities\HTTP;
 use DeepSea\Exceptions\DeepSeaException;
 
@@ -39,6 +39,14 @@ abstract class DeepSeaBaseHttpClient implements DeepSeaHttpClientInterface {
      */
     protected $response = null;
 
+    public function __construct() {
+        $this->addRequestHeader('User-Agent', sprintf("DeepSea/%s (%s; %s; %s) PHP/%s",
+                DeepSea::SDK_VERSION,
+                php_uname('s'), php_uname('r'), php_uname('m'),
+                phpversion())
+        );
+    }
+
 
     /**
      * Add request header
@@ -48,15 +56,19 @@ abstract class DeepSeaBaseHttpClient implements DeepSeaHttpClientInterface {
      * @param $replace
      */
     public function addRequestHeader($key, $value, $replace = true) {
-        $this->requestHeader[$key] = $replace ? $value : $this->requestHeader[$key] . ',' . $value;
-        sort($this->requestHeader);
+        if (!$replace && !isset($this->requestHeader[$key])) {
+            $this->addRequestHeader($key, $value, true);
+        } else {
+            $this->requestHeader[$key] = $replace ? $value : $this->requestHeader[$key] . ',' . $value;
+        }
+        ksort($this->requestHeader);
     }
 
     /**
      * @return array
      */
     public function getResponseHeader() {
-        sort($this->responseHeader);
+        ksort($this->responseHeader);
         return $this->responseHeader;
     }
 

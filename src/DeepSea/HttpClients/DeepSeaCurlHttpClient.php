@@ -26,6 +26,7 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
      * @throws DeepSeaException
      */
     public function __construct(DeepSeaCurl $curlClient = null) {
+        parent::__construct();
         $this->curlClient = $curlClient ? : new DeepSeaCurl();
         if ($this->curlClient === null) {
             throw DeepSeaException::create('Unable to Initialize Curl', 1001);
@@ -64,7 +65,7 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
         return $result;
     }
 
-    private function open($url, $parameter = array(), HTTP $method = HTTP::GET) {
+    private function open($url, $parameter = array(), $method = HTTP::GET) {
         $options = array(
             CURLOPT_URL => $url,
             CURLOPT_CUSTOMREQUEST => $method,
