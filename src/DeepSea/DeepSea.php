@@ -133,11 +133,12 @@ class DeepSea {
     }
 
     public function sendRequest($path, $data = array(), $method = HTTP::GET) {
-        if ($this->session->getAccessToken() === null) {
+        $accessToken = $this->session->getAccessToken();
+        if ($accessToken === null || empty($accessToken)) {
             throw DeepSeaException::create('Access Token Is Required To Send A Request', 1007);
         }
         $this->httpClient->setRequestHeaders(array(
-            'Authorization' => sprintf('Bearer %s', $this->session->getAccessToken())
+            'Authorization' => sprintf('Bearer %s', $accessToken)
         ));
         return $this->request($this->API_HOST . $path, $data, $method);
     }
