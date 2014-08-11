@@ -74,7 +74,7 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
             $this->addRequestHeader('Content-Type', TYPE::JSON);
             $options[CURLOPT_POSTFIELDS] = json_encode($parameter);
         }
-        $options[CURLOPT_HTTPHEADER] = $this->requestHeader;
+        $options[CURLOPT_HTTPHEADER] = $this->formatRequestHeader();
         $this->curlClient->setOptArray($options);
     }
 
@@ -96,7 +96,16 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
         $this->curlClient->close();
     }
 
-    private function parseHeader($header) {
+    private function formatRequestHeader() {
+        $result = array();
+        foreach ($this->requestHeader as $key => $value) {
+            array_push($result, sprintf('%s: %s', $key, $value));
+        }
+        sort($result);
+        return $result;
+    }
+
+    private function parseResponseHeader($header) {
         $http_response_header = explode("\r\n", $header);
         $result = array();
         $result["Status"] = $http_response_header[0];
@@ -128,7 +137,7 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
         $header = trim(mb_substr($this->response, 0, $headerSize));
         $content = trim(mb_substr($this->response, $headerSize));
 
-        $header = $this->parseHeader($header);
+        $header = $this->parseResponseHeader($header);
         $this->responseCode = 0;
         return new DeepSeaHttpResponse($header, $content);
     }
