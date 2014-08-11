@@ -37,6 +37,7 @@ class DeepSeaHttpResponse {
     }
 
     public function __construct($header, $content) {
+        if (is_array($header) || is_object($header)) { $header = json_encode($header); }
         $this->header  = json_decode($header);
         $this->content = json_decode($content);
     }

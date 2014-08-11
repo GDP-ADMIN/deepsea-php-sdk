@@ -110,18 +110,16 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
         $http_response_header = explode("\r\n", $header);
         $result = array();
         $result["Status"] = $http_response_header[0];
+        $result["Code"] = $this->getResponseCode();
 
-        $matches = array();
-        preg_match('#HTTP/\d+\.\d+ (\d+)#', $http_response_header[0], $matches);
-        $result["Code"] = $matches[1];
-
-        for ($i = 1; $i < sizeof($http_response_header); $i++) {
+        $headerSize = sizeof($http_response_header);
+        for ($i = 1; $i < $headerSize; $i++) {
             if (strlen($http_response_header[$i]) > 0 && strpos($http_response_header[$i], ':') > 0) {
                 $index = strpos($http_response_header[$i], ":");
                 $result[trim(substr($http_response_header[$i], 0, $index))] = trim(substr($http_response_header[$i], $index + 1));
             }
         }
-        return json_encode($result);
+        $this->responseHeader = $result;
     }
 
     private function parseResponse() {
@@ -138,9 +136,8 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
         $header = trim(mb_substr($this->response, 0, $headerSize));
         $content = trim(mb_substr($this->response, $headerSize));
 
-        $header = $this->parseResponseHeader($header);
-        $this->responseCode = 0;
-        return new DeepSeaHttpResponse($header, $content);
+        $this->parseResponseHeader($header);
+        return new DeepSeaHttpResponse($this->getResponseHeader(), $content);
     }
 
 }
