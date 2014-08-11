@@ -45,7 +45,7 @@ class DeepSeaRequest {
     }
 
     public function __construct(DeepSeaHttpClientInterface $httpClient = null) {
-        static::setHttpClient(($httpClient) ? : static::getHttpClient());
+        static::setHttpClient($httpClient ? : static::getHttpClient());
     }
 
     public function send($url, $params = array(), $method = HTTP::GET) {

@@ -121,13 +121,14 @@ class DeepSea {
             "client_id"     => $this->API_KEY,
             "client_secret" => $this->API_SECRET,
             "grant_type"    => GRANT::REFRESH,
-            "refresh_token" => ($refresh_token) ? : $this->getRefreshToken()
+            "refresh_token" => $refresh_token ? : $this->getRefreshToken()
         );
         $response = $this->httpClient->send($this->access_token_url, $params, HTTP::GET);
         if (isset($response->getContent()->access_token)) {
             $newToken = $response->getContent();
-            $newToken->refresh_token = $this->getRefreshToken();
-            $this->setAccessToken(json_encode($newToken));
+            $this->setAccessToken(
+                new AccessToken($newToken->access_token, $this->getRefreshToken(), $newToken->expires)
+            );
         }
         return $response->getContent();
     }
