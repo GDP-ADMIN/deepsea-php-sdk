@@ -34,8 +34,6 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
         }
         $curlInfo = $this->curlClient->getVersion();
 
-        $this->addRequestHeader('Accept', TYPE::JSON);
-        $this->addRequestHeader('Connection', 'Keep-Alive');
         $this->addRequestHeader('User-Agent', sprintf(" Curl/%s", $curlInfo['features']), false);
     }
 
@@ -104,22 +102,6 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
         }
         sort($result);
         return $result;
-    }
-
-    private function parseResponseHeader($header) {
-        $http_response_header = explode("\r\n", $header);
-        $result = array();
-        $result["Status"] = $http_response_header[0];
-        $result["Code"] = $this->getResponseCode();
-
-        $headerSize = sizeof($http_response_header);
-        for ($i = 1; $i < $headerSize; $i++) {
-            if (strlen($http_response_header[$i]) > 0 && strpos($http_response_header[$i], ':') > 0) {
-                $index = strpos($http_response_header[$i], ":");
-                $result[trim(substr($http_response_header[$i], 0, $index))] = trim(substr($http_response_header[$i], $index + 1));
-            }
-        }
-        $this->responseHeader = $result;
     }
 
     private function parseResponse() {

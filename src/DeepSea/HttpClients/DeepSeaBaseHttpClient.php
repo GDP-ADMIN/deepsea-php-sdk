@@ -11,6 +11,7 @@ namespace DeepSea\HttpClients;
 
 use DeepSea\DeepSea;
 use DeepSea\Entities\HTTP;
+use DeepSea\Entities\TYPE;
 use DeepSea\Exceptions\DeepSeaException;
 
 abstract class DeepSeaBaseHttpClient implements DeepSeaHttpClientInterface {
@@ -45,6 +46,8 @@ abstract class DeepSeaBaseHttpClient implements DeepSeaHttpClientInterface {
                 php_uname('s'), php_uname('r'), php_uname('m'),
                 phpversion())
         );
+        $this->addRequestHeader('Accept', TYPE::JSON);
+        $this->addRequestHeader('Connection', 'Keep-Alive');
     }
 
 
@@ -86,5 +89,21 @@ abstract class DeepSeaBaseHttpClient implements DeepSeaHttpClientInterface {
      * @return DeepSeaHttpResponse
      */
     abstract public function send($url, $parameter = array(), $method = HTTP::GET);
+
+    protected function parseResponseHeader($header) {
+        $http_response_header = explode("\r\n", $header);
+        $result = array();
+        $result["Status"] = $http_response_header[0];
+        $result["Code"] = $this->getResponseCode();
+
+        $headerSize = sizeof($http_response_header);
+        for ($i = 1; $i < $headerSize; $i++) {
+            if (strlen($http_response_header[$i]) > 0 && strpos($http_response_header[$i], ':') > 0) {
+                $index = strpos($http_response_header[$i], ":");
+                $result[trim(substr($http_response_header[$i], 0, $index))] = trim(substr($http_response_header[$i], $index + 1));
+            }
+        }
+        $this->responseHeader = $result;
+    }
 
 } 
