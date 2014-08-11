@@ -7,7 +7,7 @@
  * GDP Venture © 2014
  */
 
-namespace DeepSea\HttpClients;
+namespace DeepSea\HttpClients\Connections;
 
 /**
  * Curl Version Compatibility Const

@@ -12,6 +12,7 @@ namespace DeepSea\HttpClients;
 use DeepSea\Entities\HTTP;
 use DeepSea\Entities\TYPE;
 use DeepSea\Exceptions\DeepSeaException;
+use DeepSea\HttpClients\Connections\DeepSeaCurl;
 
 class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
     /**
