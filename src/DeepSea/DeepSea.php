@@ -108,7 +108,8 @@ class DeepSea {
             "redirect_uri"  => $this->getRedirectURL(),
             Response::CODE  => $get[Response::CODE]
         );
-        $response = $this->httpClient->send($this->access_token_url, $params, HTTP::POST);
+        // TODO: update HTTP::GET to HTTP::POST if process code already support POST
+        $response = $this->httpClient->send($this->access_token_url, $params, HTTP::GET);
         if (isset($response->getContent()->access_token)) {
             $this->setAccessToken(json_encode($response->getContent()));
         }
