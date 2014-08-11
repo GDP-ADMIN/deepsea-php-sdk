@@ -74,7 +74,7 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
             $this->addRequestHeader('Content-Type', TYPE::JSON);
             $options[CURLOPT_POSTFIELDS] = json_encode($parameter);
         }
-        $options[CURLOPT_HTTPHEADER] = $this->getResponseHeader();
+        $options[CURLOPT_HTTPHEADER] = $this->responseHeader;
         $this->curlClient->setOptArray($options);
     }
 
