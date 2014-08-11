@@ -118,9 +118,9 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
         $headerSize = $this->curlClient->getinfo(CURLINFO_HEADER_SIZE);
         $ver = $this->curlClient->getVersion();
         if ($ver['version_number'] < DeepSeaCurl::CURL_PROXY_QUIRK_VER) {
-            if (preg_match('/Content-Length: (\d+)/', $this->rawResponse, $match)) {
-                $headerSize = mb_strlen($this->rawResponse) - $match[1];
-            } elseif (strpos($this->rawResponse, DeepSeaCurl::CONNECTION_ESTABLISHED) !== false) {
+            if (preg_match('/Content-Length: (\d+)/', $this->response, $match)) {
+                $headerSize = mb_strlen($this->response) - $match[1];
+            } elseif (strpos($this->response, DeepSeaCurl::CONNECTION_ESTABLISHED) !== false) {
                 $headerSize += mb_strlen(DeepSeaCurl::CONNECTION_ESTABLISHED);
             }
         }
