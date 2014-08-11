@@ -37,7 +37,10 @@ class DeepSeaRequest {
         if (static::$httpClient) {
             return static::$httpClient;
         }
-        return (function_exists('curl_init') && is_callable('curl_init')) ? new DeepSeaCurlHttpClient() : new DeepSeaCurlHttpClient();
+
+        // Consider using Guzzle as http client
+        // TODO: class_exists('\GuzzleHttp\Client')
+        return (function_exists('curl_init') && is_callable('curl_init')) ? new DeepSeaCurlHttpClient() : new DeepSeaFileStreamHttpClient();
     }
 
     public function setRequestHeaders($headers = array()) {
