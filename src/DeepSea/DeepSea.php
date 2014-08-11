@@ -83,7 +83,7 @@ class DeepSea {
         } else if (!($token instanceof AccessToken) && (isset($token->access_token) && isset($token->refresh_token) && isset($token->expires))) {
             $accessToken = new AccessToken($token->access_token, $token->refresh_token, $this->expires);
         } else if ($token instanceof AccessToken) {
-            /* Do nothing, just type check */
+            $accessToken = $token;
         } else {
             throw DeepSeaException::create('Invalid Access Token Object', 1003);
         }
