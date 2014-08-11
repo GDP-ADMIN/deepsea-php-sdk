@@ -54,7 +54,7 @@ class AccessToken implements Serializable {
      * @return string
      */
     public function __toString() {
-        return $this->isAlive() ? $this->accessToken : null;
+        return $this->isAlive() ? $this->accessToken : '';
     }
 
     /**
