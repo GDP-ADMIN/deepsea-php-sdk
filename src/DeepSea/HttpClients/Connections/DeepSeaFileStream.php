@@ -32,7 +32,7 @@ class DeepSeaFileStream {
             ),
             'ssl' => array(
                 'verify_peer' => false,
-                'cafile' => dirname(__FILE__) . DIRECTORY_SEPARATOR . 'deepsea.crt',
+                'cafile' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'deepsea.crt',
             ),
         );
     }
