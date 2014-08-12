@@ -13,7 +13,6 @@ use DeepSea\Entities\AccessToken;
 use DeepSea\Entities\DeepSeaSession;
 use DeepSea\Entities\GRANT;
 use DeepSea\Entities\HTTP;
-use DeepSea\Entities\Session;
 use DeepSea\Exceptions\DeepSeaException;
 use DeepSea\HttpClients\DeepSeaHttpResponse as Response;
 use DeepSea\HttpClients\DeepSeaRequest;
@@ -79,10 +78,7 @@ class DeepSea {
         $this->auth_url         = $host . '/oauth/authorize';
         $this->access_token_url = $host . '/oauth/accesstoken';
 
-        $session = Session::getInstance();
-        if (isset($session->{DeepSeaSession::TOKEN_STORAGE})) {
-            $this->setAccessToken($session->{DeepSeaSession::TOKEN_STORAGE});
-        }
+        $this->setAccessToken(DeepSeaSession::availableAccessToken());
         $this->httpClient = new DeepSeaRequest();
 
         date_default_timezone_set("UTC");
@@ -135,10 +131,7 @@ class DeepSea {
      */
     public function processAuthCode($get = array()) {
         if (!isset($get[Response::CODE])) { $this->authorize(); }
-        if (isset($get['state'])) {
-            $session = Session::getInstance();
-            $session->OAUTH_STATE = $get['state'];
-        }
+        if (isset($get['state'])) { DeepSeaSession::setState($get['state']); }
         $params = array(
             "client_id"     => $this->API_KEY,
             "client_secret" => $this->API_SECRET,

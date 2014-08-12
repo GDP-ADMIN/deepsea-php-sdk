@@ -12,11 +12,30 @@ namespace DeepSea\Entities;
 
 class DeepSeaSession {
 
-    const TOKEN_STORAGE = 'AccessToken';
+    const TOKEN_STORAGE = 'ACCESS_TOKEN';
+    const STATE_STORAGE = 'OAUTH_STATE';
+
+    public static function setState($state) {
+        $deepseaState = Session::getInstance();
+        $deepseaState->{self::STATE_STORAGE} = $state;
+    }
+
+    public static function loadState() {
+        $state = Session::getInstance();
+        return $state->{self::STATE_STORAGE};
+    }
+
+    /**
+     * @return AccessToken
+     */
+    public static function availableAccessToken() {
+        $state = Session::getInstance();
+        return $state->{self::TOKEN_STORAGE};
+    }
 
     public function setAccessToken(AccessToken $accessToken = null) {
         $state = Session::getInstance();
-        $state->{DeepSeaSession::TOKEN_STORAGE} = $accessToken;
+        $state->{self::TOKEN_STORAGE} = $accessToken;
     }
 
     /**
@@ -24,7 +43,7 @@ class DeepSeaSession {
      */
     public function getAccessToken() {
         $state = Session::getInstance();
-        return $state->{DeepSeaSession::TOKEN_STORAGE};
+        return $state->{self::TOKEN_STORAGE};
     }
 
     public function __construct(AccessToken $accessToken = null) {
