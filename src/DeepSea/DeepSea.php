@@ -100,13 +100,13 @@ class DeepSea {
      */
     public function setAccessToken($token = null) {
         $accessToken = null;
-        if (is_string($token)) {
-            $accessToken = new AccessToken();
-            $accessToken->unserialize($token);
+        if ($token instanceof AccessToken) {
+            $accessToken = $token;
         } else if (!($token instanceof AccessToken) && (isset($token->access_token) && isset($token->refresh_token) && isset($token->expires))) {
             $accessToken = new AccessToken($token->access_token, $token->refresh_token, $this->expires);
-        } else if ($token instanceof AccessToken) {
-            $accessToken = $token;
+        } else if (is_string($token)) {
+            $accessToken = new AccessToken();
+            $accessToken->unserialize($token);
         } else {
             throw DeepSeaException::create('Invalid Access Token Object', 1003);
         }
