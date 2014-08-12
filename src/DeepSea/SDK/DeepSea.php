@@ -7,6 +7,9 @@
  * GDP Venture © 2013
  */
 
+/**
+ * @deprecated namespace DeepSea\SDK has been deprecated (deprecated since 2.0.0)
+ */
 namespace DeepSea\SDK;
 
 class DSCONFIG {
@@ -22,6 +25,11 @@ class DSCONFIG {
     public static $REDIRECT_URI  = "http://localhost/auth";
 }
 
+/**
+ * Class DeepSea
+ * @package DeepSea\SDK
+ * @deprecated Please see/use DeepSea\DeepSea instead (deprecated since 2.0.0)
+ */
 class DeepSea {
     static $CONTENT_ENCODING = 'utf-8';
     static $DATE_FORMAT      = 'Y-m-d\TH:i:s\Z';
@@ -230,6 +238,11 @@ class DeepSea {
     }
 }
 
+/**
+ * Class Result
+ * @package DeepSea\SDK
+ * @deprecated Please use DeepSea\HttpClients\DeepSeaHttpResponse (deprecated since 2.0.0)
+ */
 class Result {
     public $header;
     public $content;
@@ -241,6 +254,11 @@ class Result {
 
 }
 
+/**
+ * Class HTTP
+ * @package DeepSea\SDK
+ * @deprecated Please use DeepSea\Entitties\HTTP instead (deprecated since 2.0.0)
+ */
 class HTTP {
     const GET    = 'GET';
     const POST   = 'POST';
@@ -262,6 +280,11 @@ class HTTP {
     const UNAVAILABLE     = 503;
 }
 
+/**
+ * Class TYPE
+ * @package DeepSea\SDK
+ * @deprecated Please use DeepSea\Entitties\TYPE instead (deprecated since 2.0.0)
+ */
 class TYPE {
     const TEXT       = 'text/plain';
     const JSON       = 'application/json';
@@ -270,6 +293,11 @@ class TYPE {
     const OBJECT     = 'application/object';
 }
 
+/**
+ * Class GRANT
+ * @package DeepSea\SDK
+ * @deprecated Please use DeepSea\Entitties\GRANT instead (deprecated since 2.0.0)
+ */
 class GRANT {
     const AUTH_CODE   = 'authorization_code';
     const PASSWORD    = 'password';
@@ -277,11 +305,21 @@ class GRANT {
     const REFRESH     = 'refresh_token';
 }
 
+/**
+ * Class APIRESPONSE
+ * @package DeepSea\SDK
+ * @deprecated Now a const in DeepSea\HttpClients\DeepSeaHttpResponse (deprecated since 2.0.0, will be removed soon)
+ */
 class APIRESPONSE {
     const CODE  = 'code';
     const TOKEN = 'token';
 }
 
+/**
+ * Class SCOPE
+ * @package DeepSea\SDK
+ * @deprecated @deprecated Please use DeepSea\Entitties\SCOPE instead (deprecated since 2.0.0)
+ */
 class SCOPE {
     const ALL     = 'all';
     const LIMITED = 'limited';
