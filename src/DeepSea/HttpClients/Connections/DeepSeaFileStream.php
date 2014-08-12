@@ -13,7 +13,7 @@ namespace DeepSea\HttpClients\Connections;
 class DeepSeaFileStream {
 
     protected $options = array();
-    protected $context;
+    protected $resource;
     protected $url;
 
     public function setOpt($option, $value) {
@@ -31,8 +31,8 @@ class DeepSeaFileStream {
                 'ignore_errors' => true
             ),
             'ssl' => array(
-                'verify_peer' => false,
-                'cafile' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'deepsea.crt',
+                'verify_peer' => true,
+                'cafile' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'ca_bundle.cer',
             ),
         );
     }
@@ -40,11 +40,20 @@ class DeepSeaFileStream {
     public function open($url, $options = array()) {
         $this->setOptArray($options);
         $this->url = $url;
-        $this->context = stream_context_create($this->options);
+        $context = stream_context_create($this->options);
+        $this->resource = fopen($this->url, 'rb', false, $context);
+    }
+
+    public function close() {
+        fclose($this->resource);
     }
 
     public function exec() {
-        return fopen($this->url, 'rb', false, $this->context);
+        $metaData = stream_get_meta_data($this->resource);
+        return array(
+            'header' => $metaData['wrapper_data'],
+            'content' => stream_get_contents($this->resource),
+        );
     }
 
 } 

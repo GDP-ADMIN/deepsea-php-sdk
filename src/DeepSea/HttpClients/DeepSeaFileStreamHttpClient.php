@@ -40,37 +40,24 @@ class DeepSeaFileStreamHttpClient extends DeepSeaBaseHttpClient {
      * @return DeepSeaHttpResponse
      */
     public function send($url, $parameter = array(), $method = HTTP::GET) {
-        $this->client->setOpt('header', $this->formatRequestHeader());
+        $this->client->setOpt('header', implode("\r\n", $this->formatRequestHeader()));
         if ($method !== HTTP::GET) {
             $this->addRequestHeader('Content-Type', TYPE::JSON);
             $this->client->setOpt('content', json_encode($parameter));
         }
         $this->client->open($url);
         $this->response = $this->client->exec();
-        return $this->parseResponse();
-    }
-
-    private function formatRequestHeader() {
-        $result = array();
-        foreach ($this->requestHeader as $key => $value) {
-            array_push($result, sprintf('%s: %s', $key, $value));
-        }
-        sort($result);
-        return implode("\r\n", $result);
+        $result = $this->parseResponse();
+        $this->client->close();
+        return $result;
     }
 
     private function parseResponse() {
-        if ($this->response) {
-            $meta_data = stream_get_meta_data($this->response);
-
-            $matches = array();
-            preg_match('#HTTP/\d+\.\d+ (\d+)#', $meta_data['wrapper_data'][0], $matches);
-            $this->responseCode = $matches[1];
-
-            $this->parseResponseHeader(implode("\r\n", $meta_data['wrapper_data']));
-            $content = stream_get_contents($this->response);
-        }
-        return new DeepSeaHttpResponse($this->getResponseHeader(), $content);
+        $matches = array();
+        preg_match('#HTTP/\d+\.\d+ (\d+)#', $meta_data['wrapper_data'][0], $matches);
+        $this->responseCode = $matches[1];
+        $this->parseResponseHeader(implode("\r\n", $meta_data['wrapper_data']));
+        return new DeepSeaHttpResponse($this->getResponseHeader(), $this->response['content']);
     }
 
 

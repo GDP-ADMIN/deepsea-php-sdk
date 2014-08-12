@@ -90,6 +90,15 @@ abstract class DeepSeaBaseHttpClient implements DeepSeaHttpClientInterface {
      */
     abstract public function send($url, $parameter = array(), $method = HTTP::GET);
 
+    protected function formatRequestHeader() {
+        $result = array();
+        foreach ($this->requestHeader as $key => $value) {
+            array_push($result, sprintf('%s: %s', $key, $value));
+        }
+        sort($result);
+        return $result;
+    }
+
     protected function parseResponseHeader($header) {
         $http_response_header = explode("\r\n", $header);
         $result = array();

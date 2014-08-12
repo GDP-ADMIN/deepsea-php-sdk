@@ -86,22 +86,13 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
     }
 
     private function attachCertificate() {
-        $certificate = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'deepsea.crt';
+        $certificate = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'ca_bundle.cer';
         if (!file_exists($certificate)) { throw new DeepSeaException('Unable to find Certificate', 1002); }
         $this->curlClient->setOptArray(CURLOPT_CAINFO, $certificate);
     }
 
     private function close() {
         $this->curlClient->close();
-    }
-
-    private function formatRequestHeader() {
-        $result = array();
-        foreach ($this->requestHeader as $key => $value) {
-            array_push($result, sprintf('%s: %s', $key, $value));
-        }
-        sort($result);
-        return $result;
     }
 
     private function parseResponse() {
