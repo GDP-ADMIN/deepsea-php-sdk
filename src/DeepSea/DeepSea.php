@@ -78,7 +78,7 @@ class DeepSea {
         $this->auth_url         = $host . '/oauth/authorize';
         $this->access_token_url = $host . '/oauth/accesstoken';
 
-        $this->setAccessToken(DeepSeaSession::availableAccessToken());
+        $this->setAccessToken(DeepSeaSession::availableAccessToken() ? : new AccessToken());
         $this->httpClient = new DeepSeaRequest();
 
         date_default_timezone_set("UTC");
