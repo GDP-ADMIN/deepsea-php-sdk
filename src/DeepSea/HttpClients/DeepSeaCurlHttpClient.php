@@ -88,7 +88,7 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
     private function attachCertificate() {
         $certificate = dirname(__FILE__) . DIRECTORY_SEPARATOR . 'ca_bundle.cer';
         if (!file_exists($certificate)) { throw new DeepSeaException('Unable to find Certificate', 1002); }
-        $this->curlClient->setOptArray(CURLOPT_CAINFO, $certificate);
+        $this->curlClient->setOpt(CURLOPT_CAINFO, $certificate);
     }
 
     private function close() {
