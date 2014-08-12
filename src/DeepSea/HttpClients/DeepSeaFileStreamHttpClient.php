@@ -53,10 +53,11 @@ class DeepSeaFileStreamHttpClient extends DeepSeaBaseHttpClient {
     }
 
     private function parseResponse() {
+        $header = $this->response['header'];
         $matches = array();
-        preg_match('#HTTP/\d+\.\d+ (\d+)#', $meta_data['wrapper_data'][0], $matches);
+        preg_match('#HTTP/\d+\.\d+ (\d+)#', $header[0], $matches);
         $this->responseCode = $matches[1];
-        $this->parseResponseHeader(implode("\r\n", $meta_data['wrapper_data']));
+        $this->parseResponseHeader(implode("\r\n", $header));
         return new DeepSeaHttpResponse($this->getResponseHeader(), $this->response['content']);
     }
 
