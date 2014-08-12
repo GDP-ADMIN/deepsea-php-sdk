@@ -128,10 +128,16 @@ class DeepSea {
      *
      * @param array $get
      * @return object
+     * @throws DeepSeaException
      */
     public function processAuthCode($get = array()) {
         if (!isset($get[Response::CODE])) { $this->authorize(); }
-        if (isset($get['state'])) { DeepSeaSession::setState($get['state']); }
+        if (isset($get['state'])) {
+            $state = DeepSeaSession::loadState();
+            if ($get['state'] !== $state) {
+                throw DeepSeaException::create("Invalid State Returned By Server", 1008);
+            }
+        }
         $params = array(
             "client_id"     => $this->API_KEY,
             "client_secret" => $this->API_SECRET,
@@ -198,12 +204,15 @@ class DeepSea {
      * @return string
      */
     public function getAuthURL() {
+        $state = uniqid('DS');
+        DeepSeaSession::setState($state);
+
         $parameters = array(
             "response_type" => Response::CODE,
             "client_id"     => $this->API_KEY,
             "redirect_uri"  => $this->getRedirectURL(),
             "scope"         => $this->scope,
-            "state"         => uniqid('DS')
+            "state"         => $state
         );
         return $this->auth_url . '?' . http_build_query($parameters, null, '&');
     }
