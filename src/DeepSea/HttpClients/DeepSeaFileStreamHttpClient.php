@@ -26,7 +26,7 @@ class DeepSeaFileStreamHttpClient extends DeepSeaBaseHttpClient {
     public function __construct(DeepSeaFileStream $client = null) {
         parent::__construct();
         $this->client = $client ? : new DeepSeaFileStream();
-        if ($this->curlClient === null) {
+        if ($this->client === null) {
             throw DeepSeaException::create('Unable to Initialize File Stream', 1001);
         }
 
@@ -61,9 +61,12 @@ class DeepSeaFileStreamHttpClient extends DeepSeaBaseHttpClient {
 
     private function parseResponse() {
         if ($this->response) {
-            // TODO: Change this to actual response code!
-            $this->responseCode = 200;
             $meta_data = stream_get_meta_data($this->response);
+
+            $matches = array();
+            preg_match('#HTTP/\d+\.\d+ (\d+)#', $meta_data['wrapper_data'][0], $matches);
+            $this->responseCode = $matches[1];
+
             $this->parseResponseHeader(implode("\r\n", $meta_data['wrapper_data']));
             $content = stream_get_contents($this->response);
         }
