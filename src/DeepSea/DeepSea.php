@@ -161,7 +161,7 @@ class DeepSea {
             "grant_type"    => GRANT::REFRESH,
             "refresh_token" => $refresh_token ? : $this->getRefreshToken()
         );
-        $response = $this->httpClient->send($this->access_token_url, $params, HTTP::GET);
+        $response = $this->httpClient->send($this->access_token_url, $params, HTTP::POST);
         if (isset($response->getContent()->access_token)) {
             $newToken = $response->getContent();
             $this->setAccessToken(
