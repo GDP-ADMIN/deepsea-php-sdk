@@ -92,7 +92,8 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
     }
 
     private function close() {
-        $this->curlClient->close();
+        // Not a good position to close connection now
+        //$this->curlClient->close();
     }
 
     private function parseResponse() {
