@@ -114,7 +114,7 @@ class DeepSea {
      * @return null|string
      */
     public function getRefreshToken() {
-        return ($this->session->getAccessToken() !== null && $this->session->getAccessToken()->isAlive()) ? $this->session->getAccessToken()->refreshToken() : null;
+        return ($this->session->getAccessToken() !== null) ? $this->session->getAccessToken()->refreshToken() : null;
     }
 
     /**
