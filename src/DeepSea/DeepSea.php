@@ -60,14 +60,8 @@ class DeepSea {
      * @throws DeepSeaException
      */
     public function __construct($clientId, $clientSecret, $scope, $redirectUri, $host = null, $version = null) {
-
-        // Due to SSL Problem, http file stream client is disable for now
-        if (!function_exists('curl_init') || !is_callable('curl_init')) {
-            throw DeepSeaException::create("DeepSea SDK Require cURL extension", 2001);
-        }
-
-        $host = ($host) ? : self::HOST;
-        $version = ($version) ? : self::API_VERSION;
+        if ($host == null) { $host = self::HOST; }
+        if ($version == null) { $version = self::API_VERSION; }
         if (!(strpos($version, '/') === 0)) { $version = '/' . $version; }
 
         $this->API_KEY          = $clientId;
