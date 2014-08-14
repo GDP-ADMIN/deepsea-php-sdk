@@ -22,7 +22,7 @@ class DeepSea {
     const API_VERSION      = 'v2';
     const HOST             = 'https://api.deepsea.co.id';
 
-    const CONTENT_ENCODING = 'utf-8';
+    const CONTENT_ENCODING = 'UTF-8';
     const DATE_FORMAT      = 'Y-m-d\TH:i:s\Z';
 
     /**
