@@ -185,6 +185,9 @@ class DeepSea {
         if ($accessToken === null || empty($accessToken)) {
             throw DeepSeaException::create('Access Token Is Required To Send A Request', 1007);
         }
+        if (!$accessToken->isAlive()) {
+            throw DeepSeaException::create('Access Token Has Expired', 1007);
+        }
         $this->httpClient->setRequestHeaders(array(
             'Authorization' => sprintf('Bearer %s', $accessToken)
         ));
