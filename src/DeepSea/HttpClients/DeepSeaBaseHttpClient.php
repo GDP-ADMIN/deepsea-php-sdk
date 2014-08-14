@@ -103,7 +103,7 @@ abstract class DeepSeaBaseHttpClient implements DeepSeaHttpClientInterface {
         $http_response_header = explode("\r\n", $header);
         $result = array();
         $result["Status"] = $http_response_header[0];
-        $result["Code"] = $this->getResponseCode();
+        $result["Code"] = intval($this->getResponseCode());
 
         $headerSize = sizeof($http_response_header);
         for ($i = 1; $i < $headerSize; $i++) {
