@@ -14,14 +14,6 @@ use DeepSea\Test\TestCase;
 
 class SessionTest extends TestCase {
 
-    protected function setUp() {
-        parent::setUp();
-    }
-
-    protected function tearDown() {
-        parent::tearDown();
-    }
-
     public function testSetGet() {
         @$session = Session::getInstance();
         $sessionId = uniqid('SESS_');
