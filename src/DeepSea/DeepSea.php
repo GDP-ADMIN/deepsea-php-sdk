@@ -102,7 +102,7 @@ class DeepSea {
             $accessToken = new AccessToken();
             $accessToken->unserialize($token);
         } else {
-            throw DeepSeaException::create('Invalid Access Token Object', 1003);
+            throw new DeepSeaException('Invalid Access Token Object', 1003);
         }
 
         $this->session = new DeepSeaSession($accessToken);
@@ -129,7 +129,7 @@ class DeepSea {
         if (isset($get['state'])) {
             $state = DeepSeaSession::loadState();
             if ($get['state'] !== $state) {
-                throw DeepSeaException::create("Invalid State Returned By Server", 1008);
+                throw new DeepSeaException("Invalid State Returned By Server", 1008);
             }
         }
         $params = array(
@@ -183,10 +183,10 @@ class DeepSea {
     public function sendRequest($path, $data = array(), $method = HTTP::GET) {
         $accessToken = $this->session->getAccessToken();
         if ($accessToken === null || empty($accessToken)) {
-            throw DeepSeaException::create('Access Token Is Required To Send A Request', 1007);
+            throw new DeepSeaException('Access Token Is Required To Send A Request', 1007);
         }
         if (!$accessToken->isAlive()) {
-            throw DeepSeaException::create('Access Token Has Expired', 1007);
+            throw new DeepSeaException('Access Token Has Expired', 1007);
         }
         $this->httpClient->setRequestHeaders(array(
             'Authorization' => sprintf('Bearer %s', $accessToken)

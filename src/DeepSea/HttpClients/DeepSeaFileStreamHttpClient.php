@@ -27,7 +27,7 @@ class DeepSeaFileStreamHttpClient extends DeepSeaBaseHttpClient {
         parent::__construct();
         $this->client = $client ? : new DeepSeaFileStream();
         if ($this->client === null) {
-            throw DeepSeaException::create('Unable to Initialize File Stream', 1001);
+            throw new DeepSeaException('Unable to Initialize File Stream', 1001);
         }
 
         $this->addRequestHeader('Connection', 'Close');

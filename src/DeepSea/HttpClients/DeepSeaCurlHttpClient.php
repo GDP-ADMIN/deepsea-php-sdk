@@ -30,7 +30,7 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
         parent::__construct();
         $this->curlClient = $curlClient ? : new DeepSeaCurl();
         if ($this->curlClient === null) {
-            throw DeepSeaException::create('Unable to Initialize Curl', 1001);
+            throw new DeepSeaException('Unable to Initialize Curl', 1001);
         }
         $curlInfo = $this->curlClient->getVersion();
 
@@ -82,7 +82,7 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
         $this->response = $this->curlClient->exec();
         $this->responseCode = $this->curlClient->getinfo(CURLINFO_HTTP_CODE);
         if ($this->curlClient->errno() !== CURLE_OK) {
-            $this->error = DeepSeaException::create($this->curlClient->error(), $this->curlClient->errno());
+            $this->error = new DeepSeaException($this->curlClient->error(), $this->curlClient->errno());
         }
     }
 

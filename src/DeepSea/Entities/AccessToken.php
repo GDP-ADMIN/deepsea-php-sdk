@@ -84,7 +84,7 @@ class AccessToken implements Serializable {
     public function unserialize($serialized) {
         $obj = json_decode($serialized);
         if ($obj === null) {
-            throw DeepSeaException::create('Failed to Unserialize Object', 1004);
+            throw new DeepSeaException('Failed to Unserialize Object', 1004);
         }
         $this->__construct($obj->access_token, $obj->refresh_token, $obj->expires);
     }
