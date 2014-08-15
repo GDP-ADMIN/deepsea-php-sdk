@@ -12,7 +12,15 @@ namespace DeepSea\HttpClients\Connections;
 
 class DeepSeaFileStream {
 
-    protected $options = array();
+    protected $options = array(
+        'http' => array(
+            'timeout' => 60,
+            'ignore_errors' => true
+        ),
+        'ssl' => array(
+            'verify_peer' => true,
+        )
+    );
     protected $resource;
     protected $url;
 
@@ -25,16 +33,7 @@ class DeepSeaFileStream {
     }
 
     public function __construct() {
-        $this->options = array(
-            'http' => array(
-                'timeout' => 60,
-                'ignore_errors' => true
-            ),
-            'ssl' => array(
-                'verify_peer' => true,
-                'cafile' => dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'ca_bundle.cer',
-            ),
-        );
+        $this->options['ssl']['cafile'] = dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'ca_bundle.cer';
     }
 
     public function open($url, $options = array()) {
@@ -44,16 +43,16 @@ class DeepSeaFileStream {
         $this->resource = fopen($this->url, 'rb', false, $context);
     }
 
-    public function close() {
-        fclose($this->resource);
-    }
-
     public function exec() {
         $metaData = stream_get_meta_data($this->resource);
         return array(
             'header' => $metaData['wrapper_data'],
             'content' => stream_get_contents($this->resource),
         );
+    }
+
+    public function close() {
+        fclose($this->resource);
     }
 
 } 

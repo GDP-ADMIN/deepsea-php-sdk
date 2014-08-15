@@ -33,6 +33,16 @@ class DeepSeaCurl {
      */
     protected $curl;
 
+    protected $options = array(
+        CURLOPT_HEADER => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_SSL_VERIFYPEER => true,
+        CURLOPT_SSL_VERIFYHOST => true,
+        CURLOPT_CONNECTTIMEOUT => 10,
+        CURLOPT_TIMEOUT        => 60,
+    );
+
     public function setOpt($option, $value) {
         curl_setopt($this->curl, $option, $value);
     }
@@ -50,16 +60,12 @@ class DeepSeaCurl {
     }
 
     public function __construct() {
+
+    }
+
+    public function open() {
         $this->curl = curl_init();
-        $this->setOptArray(array(
-            CURLOPT_HEADER => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => true,
-            CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_TIMEOUT        => 60,
-        ));
+        $this->setOptArray($this->options);
     }
 
     public function exec() {

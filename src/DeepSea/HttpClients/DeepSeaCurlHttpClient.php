@@ -65,6 +65,7 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
     }
 
     private function open($url, $parameter = array(), $method = HTTP::GET) {
+        $this->curlClient->open();
         $options = array(
             CURLOPT_URL => $url,
             CURLOPT_CUSTOMREQUEST => $method,
@@ -92,8 +93,7 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
     }
 
     private function close() {
-        // Not a good position to close connection now
-        //$this->curlClient->close();
+        $this->curlClient->close();
     }
 
     private function parseResponse() {
