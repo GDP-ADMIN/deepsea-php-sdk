@@ -13,8 +13,8 @@ use DeepSea\Entities\HTTP;
 use DeepSea\Exceptions\DeepSeaException;
 use DeepSea\HttpClients\DeepSeaCurlHttpClient;
 use DeepSea\Test\TestCase;
-use Mockery;
 use Mockery\MockInterface;
+use Mockery;
 
 class DeepSeaCurlHttpClientTest extends TestCase {
 
@@ -119,5 +119,50 @@ class DeepSeaCurlHttpClientTest extends TestCase {
         $httpClient->send($url, $data, $method);
     }
 
+
+    public function testFailToSend() {
+        $url = sprintf('http://%s.com', uniqid('', true));
+        $data = array();
+        $method = HTTP::GET;
+
+        // getVersion
+        $this->curl->shouldReceive('getVersion')->once()->andReturn(0x071E00 + 1);
+
+        // open
+        $this->curl->shouldReceive('open')->once();
+
+        // errno
+        $this->curl->shouldReceive('errno')->twice()->andReturn(CURLE_COULDNT_CONNECT);
+
+        // error
+        $this->curl->shouldReceive('error')->once()->andReturnUsing(function () {
+            return new DeepSeaException('Error Cannot Connect', CURLE_COULDNT_CONNECT);
+        });
+
+        // setOptArray
+        $this->curl->shouldReceive('setOptArray')->once();
+
+        // exec
+        $this->curl->shouldReceive('exec')->once();
+
+        // getinfo
+        $this->curl->shouldReceive('getinfo')->once()->andReturnUsing(function ($arg) {
+            return $arg == CURLINFO_HTTP_CODE ? 200 : 0;
+        });
+
+        // close
+        $this->curl->shouldReceive('close')->once();
+
+        $error = false;
+        $httpClient = new DeepSeaCurlHttpClient($this->curl);
+
+        try {
+            $httpClient->send($url, $data, $method);
+        } catch (DeepSeaException $ex) {
+            $this->assertEquals(CURLE_COULDNT_CONNECT, $ex->getCode());
+            $error = true;
+        }
+        $this->assertTrue($error);
+    }
 }
  

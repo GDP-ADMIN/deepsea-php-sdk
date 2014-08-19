@@ -57,7 +57,10 @@ class DeepSeaCurlHttpClient extends DeepSeaBaseHttpClient {
                 $this->sendCurl();
             }
         }
-        if ($this->error !== null) { throw $this->error; }
+        if ($this->error !== null) {
+            $this->close();
+            throw $this->error;
+        }
         $result = $this->parseResponse();
         $this->close();
 
