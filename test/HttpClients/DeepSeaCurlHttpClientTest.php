@@ -13,8 +13,8 @@ use DeepSea\Entities\HTTP;
 use DeepSea\Exceptions\DeepSeaException;
 use DeepSea\HttpClients\DeepSeaCurlHttpClient;
 use DeepSea\Test\TestCase;
-use Mockery;
 use Mockery\MockInterface;
+use Mockery;
 
 class DeepSeaCurlHttpClientTest extends TestCase {
 
@@ -28,6 +28,7 @@ class DeepSeaCurlHttpClientTest extends TestCase {
 
     public function tearDown() {
         Mockery::close();
+        new DeepSeaCurlHttpClient();
         parent::tearDown();
     }
 
