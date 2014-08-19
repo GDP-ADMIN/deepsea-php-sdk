@@ -13,8 +13,8 @@ use DeepSea\Entities\HTTP;
 use DeepSea\Exceptions\DeepSeaException;
 use DeepSea\HttpClients\DeepSeaCurlHttpClient;
 use DeepSea\Test\TestCase;
-use Mockery\MockInterface;
 use Mockery;
+use Mockery\MockInterface;
 
 class DeepSeaCurlHttpClientTest extends TestCase {
 
@@ -22,7 +22,13 @@ class DeepSeaCurlHttpClientTest extends TestCase {
     protected $curl;
 
     public function setUp() {
+        parent::setUp();
         $this->curl = Mockery::mock('DeepSea\HttpClients\Connections\DeepSeaCurl');
+    }
+
+    public function tearDown() {
+        Mockery::close();
+        parent::tearDown();
     }
 
     /**
@@ -30,7 +36,7 @@ class DeepSeaCurlHttpClientTest extends TestCase {
      */
     public function testSendWithMethod($url, $method, $data) {
         // getVersion
-        $this->curl->shouldReceive('getVersion')->once()->andReturn(0x071E00 + 1);
+        $this->curl->shouldReceive('getVersion')->twice()->andReturn(0x071E00 + 1);
 
         // open
         $this->curl->shouldReceive('open')->once();
@@ -39,7 +45,7 @@ class DeepSeaCurlHttpClientTest extends TestCase {
         $this->curl->shouldReceive('errno')->once()->andReturn(CURLE_OK);
 
         // error
-        $this->curl->shouldReceive('error')->once()->andReturn('');
+        $this->curl->shouldReceive('error')->never()->andReturn('');
 
         // setOptArray
         $this->curl->shouldReceive('setOptArray')->once()->andReturnUsing(function ($arg) use ($url, $method, $data) {
@@ -79,7 +85,7 @@ class DeepSeaCurlHttpClientTest extends TestCase {
         $method = HTTP::GET;
 
         // getVersion
-        $this->curl->shouldReceive('getVersion')->once()->andReturn(0x071E00 + 1);
+        $this->curl->shouldReceive('getVersion')->twice()->andReturn(0x071E00 + 1);
 
         // open
         $this->curl->shouldReceive('open')->once();
@@ -102,7 +108,7 @@ class DeepSeaCurlHttpClientTest extends TestCase {
         $this->curl->shouldReceive('exec')->twice();
 
         // getinfo
-        $this->curl->shouldReceive('getinfo')->times(2)->andReturnUsing(function ($arg) {
+        $this->curl->shouldReceive('getinfo')->times(3)->andReturnUsing(function ($arg) {
             return $arg == CURLINFO_HTTP_CODE ? 200 : 0;
         });
 
