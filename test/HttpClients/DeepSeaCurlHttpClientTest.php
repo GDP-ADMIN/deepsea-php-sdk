@@ -13,8 +13,8 @@ use DeepSea\Entities\HTTP;
 use DeepSea\Exceptions\DeepSeaException;
 use DeepSea\HttpClients\DeepSeaCurlHttpClient;
 use DeepSea\Test\TestCase;
-use Mockery\MockInterface;
 use Mockery;
+use Mockery\MockInterface;
 
 class DeepSeaCurlHttpClientTest extends TestCase {
 
@@ -171,40 +171,7 @@ class DeepSeaCurlHttpClientTest extends TestCase {
         $headerKey = 'X-Test-With';
         $headerValue = uniqid('HEADER_', true);
 
-        // getVersion
-        $this->curl->shouldReceive('getVersion')->twice()->andReturn(0x071E00 + 1);
-
-        // open
-        $this->curl->shouldReceive('open')->once();
-
-        // errno
-        $this->curl->shouldReceive('errno')->once()->andReturn(CURLE_OK);
-
-        // error
-        $this->curl->shouldReceive('error')->never()->andReturn('');
-
-        // setOptArray
-        $this->curl->shouldReceive('setOptArray')->once()->andReturnUsing(function ($arg) use ($url, $method, $headerKey, $headerValue) {
-            $this->assertEquals($url, $arg[CURLOPT_URL]);
-            $this->assertEquals($method, $arg[CURLOPT_CUSTOMREQUEST]);
-            $headerToFind = sprintf("%s: %s", $headerKey, $headerValue);
-            $found = false;
-            foreach ($arg[CURLOPT_HTTPHEADER] as $header) {
-                if ($header === $headerToFind) { $found = true; }
-            }
-            $this->assertTrue($found);
-        });
-
-        // exec
-        $this->curl->shouldReceive('exec')->once();
-
-        // getinfo
-        $this->curl->shouldReceive('getinfo')->times(2)->andReturnUsing(function ($arg) {
-            return $arg == CURLINFO_HTTP_CODE ? 200 : 0;
-        });
-
-        // close
-        $this->curl->shouldReceive('close')->once();
+        $this->prepareRequestForHeader($url, $method, $headerKey, $headerValue);
 
         $httpClient = new DeepSeaCurlHttpClient($this->curl);
         $httpClient->addRequestHeader($headerKey, $headerValue);
@@ -258,6 +225,180 @@ class DeepSeaCurlHttpClientTest extends TestCase {
         $httpClient->addRequestHeader($headerKey, $headerValue);
         $httpClient->addRequestHeader($headerKey, $anotherValue, false);
         $httpClient->send($url, $data, $method);
+    }
+
+    public function testAppendHeaderNotExists() {
+        $url = sprintf('http://%s.com', uniqid('', true));
+        $data = array();
+        $method = HTTP::GET;
+        $headerKey = 'X-Test-With';
+        $headerValue = uniqid('HEADER_', true);
+
+        $this->prepareRequestForHeader($url, $method, $headerKey, $headerValue);
+
+        $httpClient = new DeepSeaCurlHttpClient($this->curl);
+        $httpClient->addRequestHeader($headerKey, $headerValue, false);
+        $httpClient->send($url, $data, $method);
+    }
+
+    private function prepareRequestForHeader($url, $method, $headerKey, $headerValue) {
+        // getVersion
+        $this->curl->shouldReceive('getVersion')->twice()->andReturn(0x071E00 + 1);
+
+        // open
+        $this->curl->shouldReceive('open')->once();
+
+        // errno
+        $this->curl->shouldReceive('errno')->once()->andReturn(CURLE_OK);
+
+        // error
+        $this->curl->shouldReceive('error')->never()->andReturn('');
+
+        // setOptArray
+        $this->curl->shouldReceive('setOptArray')->once()->andReturnUsing(function ($arg) use ($url, $method, $headerKey, $headerValue) {
+            $this->assertEquals($url, $arg[CURLOPT_URL]);
+            $this->assertEquals($method, $arg[CURLOPT_CUSTOMREQUEST]);
+            $headerToFind = sprintf("%s: %s", $headerKey, $headerValue);
+            $found = false;
+            foreach ($arg[CURLOPT_HTTPHEADER] as $header) {
+                if ($header === $headerToFind) { $found = true; }
+            }
+            $this->assertTrue($found);
+        });
+
+        // exec
+        $this->curl->shouldReceive('exec')->once();
+
+        // getinfo
+        $this->curl->shouldReceive('getinfo')->times(2)->andReturnUsing(function ($arg) {
+            return $arg == CURLINFO_HTTP_CODE ? 200 : 0;
+        });
+
+        // close
+        $this->curl->shouldReceive('close')->once();
+
+    }
+
+    /**
+     * @dataProvider responseHeaderAndContentProvider
+     */
+    public function testResponseHeader($version, $content, $headerSize, $expected) {
+        $url = sprintf('http://%s.com', uniqid('', true));
+        $data = array();
+        $method = HTTP::GET;
+
+        // getVersion
+        $this->curl->shouldReceive('getVersion')->twice()->andReturn($version);
+
+        // open
+        $this->curl->shouldReceive('open')->once();
+
+        // errno
+        $this->curl->shouldReceive('errno')->once()->andReturn(CURLE_OK);
+
+        // setOptArray
+        $this->curl->shouldReceive('setOptArray')->once();
+
+        // exec
+        $this->curl->shouldReceive('exec')->once()->andReturn($content);
+
+        // getinfo
+        $this->curl->shouldReceive('getinfo')->times(2)->andReturnUsing(function ($arg) use ($headerSize) {
+            switch ($arg) {
+                case CURLINFO_HTTP_CODE:
+                    return HTTP::OK;
+                case CURLINFO_HEADER_SIZE:
+                    return $headerSize;
+                default:
+                    return 0;
+            }
+        });
+
+        // close
+        $this->curl->shouldReceive('close')->once();
+
+        $httpClient = new DeepSeaCurlHttpClient($this->curl);
+        $result = $httpClient->send($url, $data, $method);
+        foreach ($expected['header'] as $key => $value) {
+            $this->assertEquals($value, $result->getHeader()->{$key});
+        }
+        foreach ($expected['content'] as $key => $value) {
+            $this->assertEquals($value, $result->getContent()->{$key});
+        }
+
+    }
+
+    public function responseHeaderAndContentProvider() {
+        return array(
+            array( // normal curl
+                0x071E00 + 1,
+                "HTTP 1/1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 30\r\nX-Processed-With: HTTP Test Processor\r\n\r\n{\"Code\": 200, \"Message\": \"OK\"}",
+                0, // From Content-Length
+                array(
+                    'header' => array(
+                        'Code' => 200,
+                        'Status' => 'HTTP 1/1 200 OK',
+                        'Content-Type' => 'application/json',
+                        'X-Processed-With' => 'HTTP Test Processor',
+                    ),
+                    'content' => array(
+                        'Code' => 200,
+                        'Message' => 'OK'
+                    )
+                )
+            ),
+            array( // bugged curl with content-length
+                0x071E00 - 1,
+                "HTTP 1/1 200 OK\r\nContent-Type: application/json\r\nContent-Length: 30\r\nX-Processed-With: HTTP Test Processor\r\n\r\n{\"Code\": 200, \"Message\": \"OK\"}",
+                0, // From Content-Length
+                array(
+                    'header' => array(
+                        'Code' => 200,
+                        'Status' => 'HTTP 1/1 200 OK',
+                        'Content-Type' => 'application/json',
+                        'X-Processed-With' => 'HTTP Test Processor',
+                    ),
+                    'content' => array(
+                        'Code' => 200,
+                        'Message' => 'OK'
+                    )
+                )
+            ),
+            array( // bugged curl with proxy
+                0x071E00 - 1,
+                "HTTP 1/1 200 OK\r\nContent-Type: application/json\r\nX-Processed-With: HTTP Test Processor\r\n\r\nHTTP/1.0 200 Connection established\r\n\r\n{\"Code\": 418, \"Message\": \"I'm A Teapot\"}",
+                90,
+                array(
+                    'header' => array(
+                        'Code' => 200,
+                        'Status' => 'HTTP 1/1 200 OK',
+                        'Content-Type' => 'application/json',
+                        'X-Processed-With' => 'HTTP Test Processor',
+                    ),
+                    'content' => array(
+                        'Code' => 418,
+                        'Message' => 'I\'m A Teapot'
+                    )
+                )
+            ),
+            array( // normal curl with proxy
+                0x071E00 + 1,
+                "HTTP 1/1 200 OK\r\nContent-Type: application/json\r\nX-Processed-With: HTTP Test Processor\r\n\r\nHTTP/1.0 200 Connection established\r\n\r\n{\"Code\": 418, \"Message\": \"I'm A Teapot\"}",
+                90,
+                array(
+                    'header' => array(
+                        'Code' => 200,
+                        'Status' => 'HTTP 1/1 200 OK',
+                        'Content-Type' => 'application/json',
+                        'X-Processed-With' => 'HTTP Test Processor',
+                    ),
+                    'content' => array(
+                        'Code' => 418,
+                        'Message' => 'I\'m A Teapot'
+                    )
+                )
+            ),
+        );
     }
 }
  
