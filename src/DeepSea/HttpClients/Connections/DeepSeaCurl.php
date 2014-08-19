@@ -38,7 +38,7 @@ class DeepSeaCurl {
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => true,
         CURLOPT_SSL_VERIFYPEER => true,
-        CURLOPT_SSL_VERIFYHOST => true,
+        CURLOPT_SSL_VERIFYHOST => 2, // Support for value 1/true removed in cURL 7.28.1
         CURLOPT_CONNECTTIMEOUT => 10,
         CURLOPT_TIMEOUT        => 60,
     );
