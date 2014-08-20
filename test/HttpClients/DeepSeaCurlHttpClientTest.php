@@ -13,8 +13,8 @@ use DeepSea\Entities\HTTP;
 use DeepSea\Exceptions\DeepSeaException;
 use DeepSea\HttpClients\DeepSeaCurlHttpClient;
 use DeepSea\Test\TestCase;
-use Mockery\MockInterface;
 use Mockery;
+use Mockery\MockInterface;
 
 class DeepSeaCurlHttpClientTest extends TestCase {
 
@@ -172,10 +172,16 @@ class DeepSeaCurlHttpClientTest extends TestCase {
         $headerKey = 'X-Test-With';
         $headerValue = uniqid('HEADER_', true);
 
-        $this->prepareRequestForHeader($url, $method, $headerKey, $headerValue);
-
+        // Normal Add
+        $this->prepareRequestForHeader($url, $method, sprintf("%s: %s", $headerKey, $headerValue));
         $httpClient = new DeepSeaCurlHttpClient($this->curl);
         $httpClient->addRequestHeader($headerKey, $headerValue);
+        $httpClient->send($url, $data, $method);
+
+        // Append but does not exists
+        $this->prepareRequestForHeader($url, $method, sprintf("%s: %s", $headerKey, $headerValue));
+        $httpClient = new DeepSeaCurlHttpClient($this->curl);
+        $httpClient->addRequestHeader($headerKey, $headerValue, false);
         $httpClient->send($url, $data, $method);
     }
 
@@ -187,62 +193,14 @@ class DeepSeaCurlHttpClientTest extends TestCase {
         $headerValue = uniqid('HEADER_', true);
         $anotherValue = uniqid('HEADER_2_', true);
 
-        // getVersion
-        $this->curl->shouldReceive('getVersion')->twice()->andReturn(0x071E00 + 1);
-
-        // open
-        $this->curl->shouldReceive('open')->once();
-
-        // errno
-        $this->curl->shouldReceive('errno')->once()->andReturn(CURLE_OK);
-
-        // error
-        $this->curl->shouldReceive('error')->never()->andReturn('');
-
-        // setOptArray
-        $headerToFind = $headerToFind = sprintf("%s: %s,%s", $headerKey, $headerValue, $anotherValue);
-        $this->curl->shouldReceive('setOptArray')->once()->andReturnUsing(function ($arg) use ($url, $method, $headerToFind) {
-            $this->assertEquals($url, $arg[CURLOPT_URL]);
-            $this->assertEquals($method, $arg[CURLOPT_CUSTOMREQUEST]);
-            $found = false;
-            foreach ($arg[CURLOPT_HTTPHEADER] as $header) {
-                if ($header === $headerToFind) { $found = true; }
-            }
-            $this->assertTrue($found);
-        });
-
-        // exec
-        $this->curl->shouldReceive('exec')->once();
-
-        // getinfo
-        $this->curl->shouldReceive('getinfo')->times(2)->andReturnUsing(function ($arg) {
-            return $arg == CURLINFO_HTTP_CODE ? 200 : 0;
-        });
-
-        // close
-        $this->curl->shouldReceive('close')->once();
-
+        $this->prepareRequestForHeader($url, $method, sprintf("%s: %s,%s", $headerKey, $headerValue, $anotherValue));
         $httpClient = new DeepSeaCurlHttpClient($this->curl);
         $httpClient->addRequestHeader($headerKey, $headerValue);
         $httpClient->addRequestHeader($headerKey, $anotherValue, false);
         $httpClient->send($url, $data, $method);
     }
 
-    public function testAppendHeaderNotExists() {
-        $url = sprintf('http://%s.com', uniqid('', true));
-        $data = array();
-        $method = HTTP::GET;
-        $headerKey = 'X-Test-With';
-        $headerValue = uniqid('HEADER_', true);
-
-        $this->prepareRequestForHeader($url, $method, $headerKey, $headerValue);
-
-        $httpClient = new DeepSeaCurlHttpClient($this->curl);
-        $httpClient->addRequestHeader($headerKey, $headerValue, false);
-        $httpClient->send($url, $data, $method);
-    }
-
-    private function prepareRequestForHeader($url, $method, $headerKey, $headerValue) {
+    private function prepareRequestForHeader($url, $method, $headerToFind) {
         // getVersion
         $this->curl->shouldReceive('getVersion')->twice()->andReturn(0x071E00 + 1);
 
@@ -256,15 +214,10 @@ class DeepSeaCurlHttpClientTest extends TestCase {
         $this->curl->shouldReceive('error')->never()->andReturn('');
 
         // setOptArray
-        $this->curl->shouldReceive('setOptArray')->once()->andReturnUsing(function ($arg) use ($url, $method, $headerKey, $headerValue) {
+        $this->curl->shouldReceive('setOptArray')->once()->andReturnUsing(function ($arg) use ($url, $method, $headerToFind) {
             $this->assertEquals($url, $arg[CURLOPT_URL]);
             $this->assertEquals($method, $arg[CURLOPT_CUSTOMREQUEST]);
-            $headerToFind = sprintf("%s: %s", $headerKey, $headerValue);
-            $found = false;
-            foreach ($arg[CURLOPT_HTTPHEADER] as $header) {
-                if ($header === $headerToFind) { $found = true; }
-            }
-            $this->assertTrue($found);
+            $this->assertContains($headerToFind, $arg[CURLOPT_HTTPHEADER]);
         });
 
         // exec
