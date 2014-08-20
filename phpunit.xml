@@ -1,0 +1,14 @@
+<phpunit colors="true" stderr="true" bootstrap="test/bootstrap.php">
+    <testsuites>
+        <testsuite name="DeepSea SDK Test">
+            <directory>./test</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory suffix=".php">
+                ./src/DeepSea
+            </directory>
+        </whitelist>
+    </filter>
+</phpunit>

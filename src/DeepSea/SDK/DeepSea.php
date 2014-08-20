@@ -7,11 +7,14 @@
  * GDP Venture © 2013
  */
 
+/**
+ * @deprecated namespace DeepSea\SDK has been deprecated (deprecated since 2.0.0)
+ */
 namespace DeepSea\SDK;
 
 class DSCONFIG {
-    public static $CLIENT_ID     = "1";
-    public static $CLIENT_SECRET = "001";
+    public static $CLIENT_ID     = "<your client id>";
+    public static $CLIENT_SECRET = "<your client secret>";
     public static $SCOPE         = array(SCOPE::ALL);
 
     public static $API_HOST      = "https://api.deepsea.co.id";
@@ -19,9 +22,15 @@ class DSCONFIG {
 
     // Optional, if not defined will use current URL without query string
     // Server will still check redirect URL, it has to match with registered
-    public static $REDIRECT_URI  = "http://localhost/auth";
+    public static $REDIRECT_URI  = "<your redirect uri>";
 }
 
+/**
+ * Class DeepSea
+ * @package DeepSea\SDK
+ * @deprecated Please see/use DeepSea\DeepSea instead (deprecated since 2.0.0)
+ * @see DeepSea\DeepSea
+ */
 class DeepSea {
     static $CONTENT_ENCODING = 'utf-8';
     static $DATE_FORMAT      = 'Y-m-d\TH:i:s\Z';
@@ -230,8 +239,24 @@ class DeepSea {
     }
 }
 
+/**
+ * Class Result
+ * @package DeepSea\SDK
+ * @deprecated Please use DeepSea\HttpClients\DeepSeaHttpResponse (deprecated since 2.0.0)
+ * @see DeepSea\HttpClients\DeepSeaHttpResponse
+ */
 class Result {
+    /**
+     * @var object
+     * @deprecated Direct access will be removed (deprecated since 2.0.0)
+     * @see DeepSea\HttpClients\DeepSeaHttpResponse::getHeader()
+     */
     public $header;
+    /**
+     * @var object
+     * @deprecated Direct access will be removed (deprecated since 2.0.0)
+     * @see DeepSea\HttpClients\DeepSeaHttpResponse::getContent()
+     */
     public $content;
 
     public function __construct($header, $content) {
@@ -241,6 +266,12 @@ class Result {
 
 }
 
+/**
+ * Class HTTP
+ * @package DeepSea\SDK
+ * @deprecated Please use DeepSea\Entitties\HTTP instead (deprecated since 2.0.0)
+ * @see DeepSea\Entities\HTTP
+ */
 class HTTP {
     const GET    = 'GET';
     const POST   = 'POST';
@@ -262,6 +293,12 @@ class HTTP {
     const UNAVAILABLE     = 503;
 }
 
+/**
+ * Class TYPE
+ * @package DeepSea\SDK
+ * @deprecated Please use DeepSea\Entitties\TYPE instead (deprecated since 2.0.0)
+ * @see DeepSea\Entities\TYPE
+ */
 class TYPE {
     const TEXT       = 'text/plain';
     const JSON       = 'application/json';
@@ -270,6 +307,12 @@ class TYPE {
     const OBJECT     = 'application/object';
 }
 
+/**
+ * Class GRANT
+ * @package DeepSea\SDK
+ * @deprecated Please use DeepSea\Entitties\GRANT instead (deprecated since 2.0.0)
+ * @see DeepSea\Entities\GRANT
+ */
 class GRANT {
     const AUTH_CODE   = 'authorization_code';
     const PASSWORD    = 'password';
@@ -277,11 +320,23 @@ class GRANT {
     const REFRESH     = 'refresh_token';
 }
 
+/**
+ * Class APIRESPONSE
+ * @package DeepSea\SDK
+ * @deprecated Now a const in DeepSea\HttpClients\DeepSeaHttpResponse (deprecated since 2.0.0, will be removed soon)
+ * @see DeepSea\HttpClients\DeepSeaHttpResponse
+ */
 class APIRESPONSE {
     const CODE  = 'code';
     const TOKEN = 'token';
 }
 
+/**
+ * Class SCOPE
+ * @package DeepSea\SDK
+ * @deprecated @deprecated Please use DeepSea\Entitties\SCOPE instead (deprecated since 2.0.0)
+ * @see DeepSea\Entities\SCOPE
+ */
 class SCOPE {
     const ALL     = 'all';
     const LIMITED = 'limited';
