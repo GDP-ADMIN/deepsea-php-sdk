@@ -14,7 +14,6 @@ use DateTimeZone;
 use DeepSea\DeepSea;
 use DeepSea\Entities\AccessToken;
 use DeepSea\Entities\DeepSeaSession;
-use DeepSea\Entities\Session;
 use DeepSea\HttpClients\DeepSeaHttpResponse;
 use DeepSea\HttpClients\DeepSeaRequest;
 use DeepSea\Test\TestCase;
@@ -44,14 +43,12 @@ class DeepSeaTest extends TestCase {
     protected function tearDown() {
         Mockery::close();
         new DeepSeaRequest();
-        $session = Session::getInstance();
-        $session->destroy();
         parent::tearDown();
     }
 
     public function testGetAuthURL() {
         $url = sprintf('http://%s.com', uniqid('', true));
-        $deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri, $url);
+        @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri, $url);
         $authUrl = $deepsea->getAuthURL();
         $state = DeepSeaSession::loadState();
         $expected = $url . '/oauth/authorize?response_type=code&client_id=' . $this->clientId . '&redirect_uri=' . urlencode($this->redirectUri) . '&scope=test&state=' . $state;
@@ -62,7 +59,7 @@ class DeepSeaTest extends TestCase {
      * @dataProvider accessTokenProvider
      */
     public function testSetAccessToken($token) {
-        $deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
+        @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
         $deepsea->setAccessToken($token);
         $token = DeepSeaSession::availableAccessToken();
         $this->assertEquals('ACCESS_TOKEN', (string) $token);
@@ -73,7 +70,7 @@ class DeepSeaTest extends TestCase {
      * @dataProvider accessTokenProvider
      */
     public function testGetRefreshToken($token) {
-        $deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
+        @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
         $deepsea->setAccessToken($token);
         $this->assertEquals('REFRESH_TOKEN', $deepsea->getRefreshToken());
     }
@@ -84,12 +81,12 @@ class DeepSeaTest extends TestCase {
      * @expectedExceptionCode 1003
      */
     public function testFailedParsingAccessToken() {
-        $deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
+        @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
         $deepsea->setAccessToken(new stdClass());
     }
 
     public function testFailProcessCode() {
-        $deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
+        @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
 
         $state = uniqid('STATE_', true);
         $code = uniqid('CODE_', true);
@@ -113,7 +110,7 @@ class DeepSeaTest extends TestCase {
      * @expectedExceptionCode 1008
      */
     public function testIncorrectStateProcessCode() {
-        $deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
+        @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
 
         $state = uniqid('STATE_', true);
         $code = uniqid('CODE_', true);
@@ -128,7 +125,7 @@ class DeepSeaTest extends TestCase {
     }
 
     public function testProcessCode() {
-        $deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
+        @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
 
         $state = uniqid('STATE_', true);
         $code = uniqid('CODE_', true);
@@ -149,7 +146,7 @@ class DeepSeaTest extends TestCase {
     }
 
     public function testRefreshToken() {
-        $deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
+        @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
         $this->httpClient->shouldReceive('send')->andReturnUsing(function () {
             $date = new DateTime();
             $result = new DeepSeaHttpResponse('', sprintf('{"access_token": "NEW_ACCESS_TOKEN", "expires": %s}', $date->getTimestamp() + 3600));
@@ -160,7 +157,7 @@ class DeepSeaTest extends TestCase {
     }
 
     public function testFailedRefreshToken() {
-        $deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
+        @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
         $this->httpClient->shouldReceive('send')->andReturnUsing(function () {
             $result = new DeepSeaHttpResponse('', '{"message": "REJECTED", "code": 500}');
             return $result;
@@ -182,7 +179,7 @@ class DeepSeaTest extends TestCase {
             return $result;
         });
 
-        $deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
+        @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
         $deepsea->setAccessToken(new AccessToken('ACCESS_TOKEN', 'REFRESH_TOKEN', $expires));
         $deepsea->sendRequest('/test');
     }
@@ -196,7 +193,7 @@ class DeepSeaTest extends TestCase {
         $date = new DateTime();
         $expires = $date->getTimestamp() - 100; // Expired
 
-        $deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
+        @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
         $deepsea->setAccessToken(new AccessToken('ACCESS_TOKEN', 'REFRESH_TOKEN', $expires));
         $deepsea->sendRequest('/test');
     }
@@ -207,7 +204,7 @@ class DeepSeaTest extends TestCase {
      * @expectedExceptionCode 1007
      */
     public function testSendRequestTokenEmpty() {
-        $deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
+        @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
         new DeepSeaSession(); // Set Access Token To null
         $deepsea->sendRequest('/test');
     }

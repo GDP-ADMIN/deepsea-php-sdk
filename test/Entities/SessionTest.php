@@ -14,14 +14,6 @@ use DeepSea\Test\TestCase;
 
 class SessionTest extends TestCase {
 
-    public function setUp() {
-        parent::setUp();
-    }
-
-    public function tearDown() {
-        parent::tearDown();
-    }
-
     public function testSetGet() {
         @$session = Session::getInstance();
         $sessionId = uniqid('SESS_');
@@ -32,7 +24,7 @@ class SessionTest extends TestCase {
     }
 
     public function testIssetUnset() {
-        $session = Session::getInstance();
+        @$session = Session::getInstance();
         $sessionId = uniqid('SESS_');
         $sessionValue = uniqid('VALUE_');
 
@@ -40,21 +32,25 @@ class SessionTest extends TestCase {
 
         $session->{$sessionId} = $sessionValue;
         $this->assertTrue(isset($session->{$sessionId}));
+
         unset($session->{$sessionId});
         $this->assertFalse(isset($session->{$sessionId}));
     }
 
     public function testDestroy() {
         /* @var Session $session */
-        $session = Session::getInstance();
+        @$session = Session::getInstance();
         $sessionId = uniqid('SESS_');
         $sessionValue = uniqid('VALUE_');
 
         $session->{$sessionId} = $sessionValue;
         $this->assertEquals($sessionValue, $session->{$sessionId});
-        $session->destroy();
+
+        $this->assertTrue($session->destroy());
+        $this->assertFalse($session->destroy());
         $this->assertNull($session->{$sessionId});
     }
+
 
 }
  
