@@ -49,7 +49,9 @@ class Session {
      **/
 
     public function startSession() {
-        if ($this->sessionState == self::SESSION_NOT_STARTED) {
+        if (isset($_SESSION) || session_status() !== PHP_SESSION_DISABLED) {
+            $this->sessionState = self::SESSION_STARTED;
+        } else if ($this->sessionState == self::SESSION_NOT_STARTED) {
             $this->sessionState = session_start();
         }
 
@@ -88,17 +90,17 @@ class Session {
 
 
     /**
-     * Destroys the current session.
-     *
-     * @return bool true is session has been deleted, else false.
+     * Destroys the session (PHP Native Session).
      **/
     public function destroy() {
         if ($this->sessionState == self::SESSION_STARTED) {
-            $this->sessionState = !session_destroy();
             unset($_SESSION);
-            return !$this->sessionState;
+            if (session_status() === PHP_SESSION_ACTIVE) {
+                $this->sessionState = !session_destroy();
+            } else {
+                $this->sessionState = self::SESSION_NOT_STARTED;
+            }
         }
 
-        return false;
     }
 }
