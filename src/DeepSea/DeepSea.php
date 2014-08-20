@@ -97,7 +97,7 @@ class DeepSea {
         if ($token instanceof AccessToken) {
             $accessToken = $token;
         } else if (!($token instanceof AccessToken) && (isset($token->access_token) && isset($token->refresh_token) && isset($token->expires))) {
-            $accessToken = new AccessToken($token->access_token, $token->refresh_token, $this->expires);
+            $accessToken = new AccessToken($token->access_token, $token->refresh_token, $token->expires);
         } else if (is_string($token)) {
             $accessToken = new AccessToken();
             $accessToken->unserialize($token);
