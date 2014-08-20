@@ -14,13 +14,11 @@ use DateTimeZone;
 use DeepSea\DeepSea;
 use DeepSea\Entities\AccessToken;
 use DeepSea\Entities\DeepSeaSession;
-use DeepSea\Exceptions\DeepSeaException;
 use DeepSea\HttpClients\DeepSeaHttpResponse;
 use DeepSea\HttpClients\DeepSeaRequest;
 use DeepSea\Test\TestCase;
-use Exception;
-use Mockery\MockInterface;
 use Mockery;
+use Mockery\MockInterface;
 use stdClass;
 
 class DeepSeaTest extends TestCase {
@@ -77,19 +75,14 @@ class DeepSeaTest extends TestCase {
         $this->assertEquals('REFRESH_TOKEN', $deepsea->getRefreshToken());
     }
 
+    /**
+     * @expectedException \DeepSea\Exceptions\DeepSeaException
+     * @expectedExceptionMessage Invalid Access Token Object
+     * @expectedExceptionCode 1003
+     */
     public function testFailedParsingAccessToken() {
         @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
-        $error = false;
-
-        try {
-            $deepsea->setAccessToken(new stdClass());
-        } catch (DeepSeaException $ex) {
-            $this->assertEquals(1003, $ex->getCode());
-            $this->assertEquals('Invalid Access Token Object', $ex->getMessage());
-            $error = true;
-        }
-
-        $this->assertTrue($error);
+        $deepsea->setAccessToken(new stdClass());
     }
 
     public function testFailProcessCode() {
@@ -111,6 +104,11 @@ class DeepSeaTest extends TestCase {
         $this->assertEmpty((string) $token);
     }
 
+    /**
+     * @expectedException \DeepSea\Exceptions\DeepSeaException
+     * @expectedExceptionMessage Invalid State Returned By Server
+     * @expectedExceptionCode 1008
+     */
     public function testIncorrectStateProcessCode() {
         @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
 
@@ -123,16 +121,7 @@ class DeepSeaTest extends TestCase {
             return $result;
         });
 
-        $error = false;
-
-        try {
-            $deepsea->processAuthCode(array('code' => $code, 'state' => $state));
-        } catch (Exception $ex) {
-            $this->assertEquals('1008', $ex->getCode());
-            $this->assertEquals("Invalid State Returned By Server", $ex->getMessage());
-            $error = true;
-        }
-        $this->assertTrue($error);
+        $deepsea->processAuthCode(array('code' => $code, 'state' => $state));
     }
 
     public function testProcessCode() {
@@ -195,39 +184,29 @@ class DeepSeaTest extends TestCase {
         $deepsea->sendRequest('/test');
     }
 
+    /**
+     * @expectedException \DeepSea\Exceptions\DeepSeaException
+     * @expectedExceptionMessage Access Token Has Expired
+     * @expectedExceptionCode 1007
+     */
     public function testSendRequestTokenExpired() {
         $date = new DateTime();
         $expires = $date->getTimestamp() - 100; // Expired
 
         @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
         $deepsea->setAccessToken(new AccessToken('ACCESS_TOKEN', 'REFRESH_TOKEN', $expires));
-
-        $error = false;
-        try {
-            $deepsea->sendRequest('/test');
-        } catch (DeepSeaException $ex) {
-            $this->assertEquals(1007, $ex->getCode());
-            $this->assertEquals('Access Token Has Expired', $ex->getMessage());
-            $error = true;
-        }
-
-        $this->assertTrue($error);
+        $deepsea->sendRequest('/test');
     }
 
+    /**
+     * @expectedException \DeepSea\Exceptions\DeepSeaException
+     * @expectedExceptionMessage Access Token Is Required To Send A Request
+     * @expectedExceptionCode 1007
+     */
     public function testSendRequestTokenEmpty() {
         @$deepsea = new DeepSea($this->clientId, $this->clientSecret, $this->scope, $this->redirectUri);
-        new DeepSeaSession();
-
-        $error = false;
-        try {
-            $deepsea->sendRequest('/test');
-        } catch (DeepSeaException $ex) {
-            $this->assertEquals(1007, $ex->getCode());
-            $this->assertEquals('Access Token Is Required To Send A Request', $ex->getMessage());
-            $error = true;
-        }
-
-        $this->assertTrue($error);
+        new DeepSeaSession(); // Set Access Token To null
+        $deepsea->sendRequest('/test');
     }
 
 

@@ -13,8 +13,8 @@ use DeepSea\Entities\HTTP;
 use DeepSea\Exceptions\DeepSeaException;
 use DeepSea\HttpClients\DeepSeaCurlHttpClient;
 use DeepSea\Test\TestCase;
-use Mockery;
 use Mockery\MockInterface;
+use Mockery;
 
 class DeepSeaCurlHttpClientTest extends TestCase {
 
@@ -120,6 +120,11 @@ class DeepSeaCurlHttpClientTest extends TestCase {
         $httpClient->send($url, $data, $method);
     }
 
+    /**
+     * @expectedException \DeepSea\Exceptions\DeepSeaException
+     * @expectedExceptionMessage Error Cannot Connect
+     * @expectedExceptionCode CURLE_COULDNT_CONNECT
+     */
     public function testFailToSend() {
         $url = sprintf('http://%s.com', uniqid('', true));
         $data = array();
@@ -153,16 +158,8 @@ class DeepSeaCurlHttpClientTest extends TestCase {
         // close
         $this->curl->shouldReceive('close')->once();
 
-        $error = false;
         $httpClient = new DeepSeaCurlHttpClient($this->curl);
-
-        try {
-            $httpClient->send($url, $data, $method);
-        } catch (DeepSeaException $ex) {
-            $this->assertEquals(CURLE_COULDNT_CONNECT, $ex->getCode());
-            $error = true;
-        }
-        $this->assertTrue($error);
+        $httpClient->send($url, $data, $method);
     }
 
     public function testBuildHeader() {

@@ -11,9 +11,7 @@ namespace Test\Entities;
 
 use DateTime;
 use DeepSea\Entities\AccessToken;
-use DeepSea\Exceptions\DeepSeaException;
 use DeepSea\Test\TestCase;
-use Exception;
 
 class AccessTokenTest extends TestCase {
 
@@ -65,24 +63,15 @@ class AccessTokenTest extends TestCase {
         $this->assertTrue($unserialized->isAlive());
     }
 
-    // Due to phpunit namespace, we cant use @expectedException
+    /**
+     * @expectedException \DeepSea\Exceptions\DeepSeaException
+     * @expectedExceptionMessage Failed to Unserialize Access Token
+     * @expectedExceptionCode 1004
+     */
     public function testFailedUnserialize() {
         $invalidJson = sprintf('{access_token: "%s", ', uniqid("TOKEN_"));
         $token = new AccessToken();
-        $error = false;
-
-        try {
-            $token->unserialize($invalidJson);
-        } catch (Exception $ex) {
-            $this->assertTrue($ex instanceof DeepSeaException);
-            $this->assertEquals($ex->getMessage(), 'Failed to Unserialize Access Token');
-            $this->assertEquals($ex->getCode(), 1004);
-            $error = true;
-        }
-
-        // make sure exception is actually thrown
-        $this->assertTrue($error);
-
+        $token->unserialize($invalidJson);
     }
 
 }
